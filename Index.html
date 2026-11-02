@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Inventory Management</title>
+<!-- CSS PART -->
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+body{
+    background:#f3f5f9;
+    color:#253047;
+}
+.layout{
+    display:flex;
+    min-height:100vh;
+}
+.sidebar{
+    width:230px;
+    background:#17243a;
+    color:white;
+    padding:25px 15px;
+    flex-shrink:0;
+}
+.logo{
+    font-size:21px;
+    font-weight:bold;
+    margin-bottom:35px;
+}
+.logo span{
+    color:#46c7a0;
+}
+.nav button{
+    width:100%;
+    display:block;
+    text-align:left;
+    background:none;
+    color:#cbd5e1;
+    border:none;
+    padding:14px;
+    margin:5px 0;
+    border-radius:7px;
+    cursor:pointer;
+}
+.nav button:hover,
+.nav button.active{
+    background:#30435f;
+    color:white;
+}
+.main{
+    flex:1;
+    padding:28px;
+    min-width:0;
+}
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap:10px;
+}
+.header h1{
+    font-size:25px;
+}
+.subtitle{
+    color:#8490a2;
+    font-size:13px;
+    margin-top:6px;
+}
+.card-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:17px;
+    margin-bottom:22px;
+}
+.card,
+.panel{
+    background:white;
+    padding:20px;
+    border-radius:11px;
+    box-shadow:0 3px 12px #00000008;
+}
+.card p{
+    color:#8490a2;
+    font-size:13px;
+}
+.card h2{
+    margin-top:12px;
+    font-size:28px;
+}
+.panel{
+    margin-bottom:20px;
+}
+.panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:17px;
+}
+.btn{
+    border:none;
+    padding:10px 15px;
+    border-radius:6px;
+    background:#2864d7;
+    color:white;
+    cursor:pointer;
+}
+.btn.green{
+    background:#159b76;
+}
+.btn.red{
+    background:#dc4d55;
+}
+.btn.gray{
+    background:#e9edf3;
+    color:#333;
+}
+.btn.small{
+    padding:7px 10px;
+    font-size:12px;
+    margin:2px;
+}
+input,select{
+    width:100%;
+    padding:11px;
+    border:1px solid #d9dee8;
+    border-radius:6px;
+    outline:none;
+}
+input:focus,select:focus{
+    border-color:#2864d7;
+}
+.search{
+    max-width:300px;
+}
+.table-wrap{
+    overflow-x:auto;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:600px;
+}
+th,td{
+    padding:13px 10px;
+    border-bottom:1px solid #edf0f4;
+    text-align:left;
+    font-size:13px;
+}
+th{
+    color:#8490a2;
+    background:#fafbfc;
+}
+.page{
+    display:none;
+}
+.page.active{
+    display:block;
+}
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+.field label{
+    display:block;
+    margin-bottom:7px;
+    font-size:13px;
+    color:#596579;
+}
+.field.full{
+    grid-column:1/-1;
+}
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#0008;
+    justify-content:center;
+    align-items:center;
+    padding:15px;
+    z-index:10;
+}
+.modal.show{
+    display:flex;
+}
+.modal-box{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    width:100%;
+    max-width:520px;
+    max-height:90vh;
+    overflow:auto;
+}
+.modal-head{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+.modal-head button{
+    background:none;
+    border:none;
+    font-size:24px;
+    cursor:pointer;
+}
+.modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+}
+.badge{
+    background:#e5f7ef;
+    color:#12845e;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:11px;
+}
+.badge.low{
+    background:#fff0e5;
+    color:#c76b20;
+}
+.notice{
+    padding:12px;
+    border-radius:7px;
+    margin-bottom:15px;
+    display:none;
+}
+.notice.success{
+    display:block;
+    background:#e5f7ef;
+    color:#12845e;
+}
+.notice.error{
+    display:block;
+    background:#fff0f0;
+    color:#c0392b;
+}
+.empty{
+    padding:25px;
+    text-align:center;
+    color:#8490a2;
+}
+@media(max-width:850px){
+    .card-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+@media(max-width:600px){
+    .layout{
+        display:block;
+    }
+    .sidebar{
+        width:100%;
+    }
+    .nav{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+    }
+    .main{
+        padding:15px;
+    }
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+    .field.full{
+        grid-column:auto;
+    }
+}
+</style>
+</head>
+<body>
+<!-- HTML PART -->
+<div class="layout">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="logo">
+SMART <span>INVENTORY</span>
+</div>
+<div class="nav">
+<button class="active" onclick="showPage('dashboard',this)">Dashboard</button>
+<button onclick="showPage('products',this)">Products</button>
+<button onclick="showPage('categories',this)">Categories</button>
+<button onclick="showPage('suppliers',this)">Suppliers</button>
+<button onclick="showPage('stock',this)">Stock IN / OUT</button>
+<button onclick="showPage('lowstock',this)">Low Stock</button>
+</div>
+</aside>
+<main class="main">
+<div class="header">
+<div>
+<h1 id="pageTitle">Dashboard</h1>
+<p class="subtitle">Smart Inventory Management System</p>
+</div>
+<button class="btn" onclick="loadData()">Refresh</button>
+</div>
+<div id="message" class="notice"></div>
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
+<div class="card-grid">
+<div class="card">
+<p>Total Products</p>
+<h2 id="totalProducts">0</h2>
+</div>
+<div class="card">
+<p>Total Categories</p>
+<h2 id="totalCategories">0</h2>
+</div>
+<div class="card">
+<p>Total Suppliers</p>
+<h2 id="totalSuppliers">0</h2>
+</div>
+<div class="card">
+<p>Total Stock</p>
+<h2 id="totalStock">0</h2>
+</div>
+</div>
+<div class="panel">
+<h3>Low Stock Alerts</h3>
+<div id="dashboardLow" style="margin-top:15px"></div>
+</div>
+</section>
+<!-- PRODUCTS -->
+<section id="products" class="page">
+<div class="panel">
+<div class="panel-head">
+<h3>All Products</h3>
+<button class="btn green" onclick="openProductForm()">
++ Add Product
+</button>
+</div>
+<div class="panel-head">
+<input class="search" id="productSearch"
+placeholder="Search product..."
+oninput="renderProducts()">
+<select class="search" id="productFilter"
+onchange="renderProducts()">
+<option value="">All Categories</option>
+</select>
+</div>
+<div id="productTable" class="table-wrap"></div>
+</div>
+</section>
+<!-- CATEGORIES -->
+<section id="categories" class="page">
+<div class="panel">
+<div class="panel-head">
+<h3>Categories</h3>
+<button class="btn green" onclick="openCategoryForm()">
++ Add Category
+</button>
+</div>
+<div id="categoryTable" class="table-wrap"></div>
+</div>
+<div class="panel">
+<h3>Products by Category</h3>
+<select id="categorySelect"
+onchange="renderCategoryProducts()"
+style="margin-top:15px">
+<option value="">Select Category</option>
+</select>
+<div id="categoryProducts" style="margin-top:15px"></div>
+</div>
+</section>
+<!-- SUPPLIERS -->
+<section id="suppliers" class="page">
+<div class="panel">
+<div class="panel-head">
+<h3>All Suppliers</h3>
+<button class="btn green" onclick="openSupplierForm()">
++ Add Supplier
+</button>
+</div>
+<!-- SUPPLIER SEARCH FEATURE -->
+<input
+class="search"
+id="supplierSearch"
+placeholder="Search supplier by name, phone or email..."
+oninput="renderSuppliers()">
+<div id="supplierTable" class="table-wrap"
+style="margin-top:15px"></div>
+</div>
+</section>
+<!-- STOCK -->
+<section id="stock" class="page">
+<div class="panel">
+<h3>Update Stock</h3>
+<form onsubmit="changeStock(event)" style="margin-top:20px">
+<div class="form-grid">
+<div class="field full">
+<label>Select Product</label>
+<select id="stockProduct" required></select>
+</div>
+<div class="field">
+<label>Action</label>
+<select id="stockAction">
+<option value="in">Stock IN</option>
+<option value="out">Stock OUT</option>
+</select>
+</div>
+<div class="field">
+<label>Quantity</label>
+<input type="number" id="stockQuantity" min="1" required>
+</div>
+</div>
+<button class="btn green" style="margin-top:18px">
+Update Stock
+</button>
+</form>
+</div>
+<div class="panel">
+<h3>Current Stock</h3>
+<div id="stockTable" class="table-wrap" style="margin-top:15px"></div>
+</div>
+</section>
+<!-- LOW STOCK -->
+<section id="lowstock" class="page">
+<div class="panel">
+<h3>Low Stock Products</h3>
+<div id="lowStockTable" class="table-wrap" style="margin-top:15px"></div>
+</div>
+</section>
+</main>
+</div>
+<!-- PRODUCT FORM -->
+<div class="modal" id="productModal">
+<div class="modal-box">
+<div class="modal-head">
+<h3 id="productFormTitle">Add Product</h3>
+<button onclick="closeModal('productModal')">×</button>
+</div>
+<form onsubmit="saveProduct(event)" id="productForm">
+<div class="form-grid">
+<div class="field">
+<label>Product ID</label>
+<input type="number" id="pId" min="1" required>
+</div>
+<div class="field">
+<label>Product Name</label>
+<input id="pName" required>
+</div>
+<div class="field">
+<label>Category</label>
+<select id="pCategory" required></select>
+</div>
+<div class="field">
+<label>Supplier</label>
+<select id="pSupplier" required></select>
+</div>
+<div class="field">
+<label>Price</label>
+<input type="number" id="pPrice" min="0" step="0.01" required>
+</div>
+<div class="field">
+<label>Quantity</label>
+<input type="number" id="pQuantity" min="0" required>
+</div>
+<div class="field full">
+<label>Minimum Stock</label>
+<input type="number" id="pMinimum" min="0" required>
+</div>
+</div>
+<div class="modal-actions">
+<button type="button" class="btn gray"
+onclick="closeModal('productModal')">Cancel</button>
+<button class="btn green">Save Product</button>
+</div>
+</form>
+</div>
+</div>
+<!-- CATEGORY FORM -->
+<div class="modal" id="categoryModal">
+<div class="modal-box">
+<div class="modal-head">
+<h3>Add Category</h3>
+<button onclick="closeModal('categoryModal')">×</button>
+</div>
+<form onsubmit="saveCategory(event)">
+<div class="form-grid">
+<div class="field">
+<label>Category ID</label>
+<input type="number" id="cId" min="1" required>
+</div>
+<div class="field">
+<label>Category Name</label>
+<input id="cName" required>
+</div>
+</div>
+<div class="modal-actions">
+<button type="button" class="btn gray"
+onclick="closeModal('categoryModal')">Cancel</button>
+<button class="btn green">Save Category</button>
+</div>
+</form>
+</div>
+</div>
+<!-- SUPPLIER FORM -->
+<div class="modal" id="supplierModal">
+<div class="modal-box">
+<div class="modal-head">
+<h3>Add Supplier</h3>
+<button onclick="closeModal('supplierModal')">×</button>
+</div>
+<form onsubmit="saveSupplier(event)">
+<div class="form-grid">
+<div class="field">
+<label>Supplier ID</label>
+<input type="number" id="sId" min="1" required>
+</div>
+<div class="field">
+<label>Supplier Name</label>
+<input id="sName" required>
+</div>
+<div class="field">
+<label>Phone</label>
+<input id="sPhone">
+</div>
+<div class="field">
+<label>Email</label>
+<input type="email" id="sEmail">
+</div>
+</div>
+<div class="modal-actions">
+<button type="button" class="btn gray"
+onclick="closeModal('supplierModal')">Cancel</button>
+<button class="btn green">Save Supplier</button>
+</div>
+</form>
+</div>
+</div>
+<!-- JAVASCRIPT PART -->
+<script>
+let categories = [];
+let suppliers = [];
+let products = [];
+let editingProductId = null;
+// API HELPER
+async function api(url,options={}){
+    const response = await fetch(url,{
+        ...options,
+        headers:{
+            "Content-Type":"application/json",
+            ...(options.headers || {})
+        }
+    });
+    let data = {};
+    try{
+        data = await response.json();
+    }catch(e){}
+    if(!response.ok){
+        throw new Error(data.error || "Something went wrong");
+    }
+    return data;
+}
+// MESSAGE
+function showMessage(text,type="success"){
+    const box = document.getElementById("message");
+    box.textContent = text;
+    box.className = "notice " + type;
+    window.scrollTo({top:0,behavior:"smooth"});
+    setTimeout(()=>{
+        box.className = "notice";
+    },4000);
+}
+// PAGE NAVIGATION
+function showPage(id,button){
+    document.querySelectorAll(".page").forEach(p=>{
+        p.classList.remove("active");
+    });
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".nav button").forEach(b=>{
+        b.classList.remove("active");
+    });
+    button.classList.add("active");
+    document.getElementById("pageTitle").textContent =
+    id.charAt(0).toUpperCase()+id.slice(1);
+}
+// MODALS
+function openModal(id){
+    document.getElementById(id).classList.add("show");
+}
+function closeModal(id){
+    document.getElementById(id).classList.remove("show");
+}
+// LOAD DATABASE DATA
+async function loadData(){
+    try{
+        const result = await Promise.all([
+            api("/api/categories"),
+            api("/api/suppliers"),
+            api("/api/products")
+        ]);
+        categories = result[0];
+        suppliers = result[1];
+        products = result[2];
+        renderAll();
+    }
+    catch(error){
+        showMessage(error.message,"error");
+    }
+}
+function renderAll(){
+    renderDashboard();
+    renderProducts();
+    renderCategories();
+    renderSuppliers();
+    renderStock();
+    renderLowStock();
+    fillSelects();
+}
+// DASHBOARD
+function renderDashboard(){
+    document.getElementById("totalProducts").textContent =
+    products.length;
+    document.getElementById("totalCategories").textContent =
+    categories.length;
+    document.getElementById("totalSuppliers").textContent =
+    suppliers.length;
+    document.getElementById("totalStock").textContent =
+    products.reduce((sum,p)=>sum+Number(p.quantity),0);
+    const low = products.filter(p=>
+        Number(p.quantity)<=Number(p.minimum_stock)
+    );
+    document.getElementById("dashboardLow").innerHTML =
+    low.length ?
+    low.map(p=>`
+        <p style="padding:10px 0">
+        <b>${esc(p.product_name)}</b>
+        — Only ${p.quantity} left
+        <span class="badge low">Low Stock</span>
+        </p>
+    `).join("") :
+    '<div class="empty">All products have sufficient stock.</div>';
+}
+// PRODUCTS
+function renderProducts(){
+    const search =
+    document.getElementById("productSearch").value.toLowerCase();
+    const category =
+    document.getElementById("productFilter").value;
+    const list = products.filter(p=>
+        (p.product_name || "").toLowerCase().includes(search) &&
+        (!category || String(p.category_id)===category)
+    );
+    document.getElementById("productTable").innerHTML =
+    list.length ? `
+    <table>
+    <tr>
+        <th>ID</th>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Supplier</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Actions</th>
+    </tr>
+    ${list.map(p=>`
+    <tr>
+        <td>${p.product_id}</td>
+        <td>${esc(p.product_name)}</td>
+        <td>${esc(p.category_name || "-")}</td>
+        <td>${esc(p.supplier_name || "-")}</td>
+        <td>₹${Number(p.price).toFixed(2)}</td>
+        <td>${p.quantity}</td>
+        <td>
+            <button class="btn small"
+            onclick="editProduct(${p.product_id})">
+            Edit
+            </button>
+            <button class="btn red small"
+            onclick="deleteProduct(${p.product_id})">
+            Delete
+            </button>
+        </td>
+    </tr>
+    `).join("")}
+    </table>
+    ` : '<div class="empty">No products found.</div>';
+}
+// EDIT PRODUCT
+function editProduct(id){
+    const p = products.find(x=>
+        Number(x.product_id)===Number(id)
+    );
+    if(!p) return;
+    editingProductId = id;
+    document.getElementById("productForm").reset();
+    document.getElementById("productFormTitle").textContent =
+    "Edit Product";
+    document.getElementById("pId").value = p.product_id;
+    document.getElementById("pId").disabled = true;
+    document.getElementById("pName").value = p.product_name;
+    document.getElementById("pCategory").value = p.category_id;
+    document.getElementById("pSupplier").value = p.supplier_id;
+    document.getElementById("pPrice").value = p.price;
+    document.getElementById("pQuantity").value = p.quantity;
+    document.getElementById("pMinimum").value = p.minimum_stock;
+    openModal("productModal");
+}
+// ADD PRODUCT FORM
+function openProductForm(){
+    if(!categories.length || !suppliers.length){
+        showMessage(
+            "Please add a category and supplier first.",
+            "error"
+        );
+        return;
+    }
+    editingProductId = null;
+    document.getElementById("productForm").reset();
+    document.getElementById("pId").disabled = false;
+    document.getElementById("productFormTitle").textContent =
+    "Add Product";
+    openModal("productModal");
+}
+// SAVE PRODUCT
+async function saveProduct(event){
+    event.preventDefault();
+    const data = {
+        product_id:Number(document.getElementById("pId").value),
+        product_name:document.getElementById("pName").value.trim(),
+        category_id:Number(document.getElementById("pCategory").value),
+        supplier_id:Number(document.getElementById("pSupplier").value),
+        price:Number(document.getElementById("pPrice").value),
+        quantity:Number(document.getElementById("pQuantity").value),
+        minimum_stock:Number(document.getElementById("pMinimum").value)
+    };
+    try{
+        if(editingProductId !== null){
+            await api("/api/products/"+editingProductId,{
+                method:"PUT",
+                body:JSON.stringify(data)
+            });
+            showMessage("Product updated successfully!");
+        }
+        else{
+            await api("/api/products",{
+                method:"POST",
+                body:JSON.stringify(data)
+            });
+            showMessage("Product added successfully!");
+        }
+        closeModal("productModal");
+        await loadData();
+    }
+    catch(error){
+        showMessage(error.message,"error");
+    }
+}
+// DELETE PRODUCT
+async function deleteProduct(id){
+    if(!confirm("Are you sure you want to delete this product?")){
+        return;
+    }
+    try{
+        await api("/api/products/"+id,{
+            method:"DELETE"
+        });
+        showMessage("Product deleted successfully!");
+        await loadData();
+    }
+    catch(error){
+        showMessage(error.message,"error");
+    }
+}
+// CATEGORIES
+function renderCategories(){
+    document.getElementById("categoryTable").innerHTML =
+    categories.length ? `
+    <table>
+    <tr>
+        <th>ID</th>
+        <th>Category</th>
+        <th>Total Products</th>
+    </tr>
+    ${categories.map(c=>`
+    <tr>
+        <td>${c.category_id}</td>
+        <td>${esc(c.category_name)}</td>
+        <td>
+        ${products.filter(p=>
+            Number(p.category_id)===Number(c.category_id)
+        ).length}
+        </td>
+    </tr>
+    `).join("")}
+    </table>
+    ` : '<div class="empty">No categories found.</div>';
+}
+function renderCategoryProducts(){
+    const id = document.getElementById("categorySelect").value;
+    const list = products.filter(p=>
+        String(p.category_id)===id
+    );
+    document.getElementById("categoryProducts").innerHTML =
+    !id ? '<div class="empty">Select a category.</div>' :
+    list.length ? `
+    <table>
+    <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+    </tr>
+    ${list.map(p=>`
+    <tr>
+        <td>${esc(p.product_name)}</td>
+        <td>₹${Number(p.price).toFixed(2)}</td>
+        <td>${p.quantity}</td>
+    </tr>
+    `).join("")}
+    </table>
+    ` : '<div class="empty">No products in this category.</div>';
+}
+function openCategoryForm(){
+    document.querySelector("#categoryModal form").reset();
+    openModal("categoryModal");
+}
+async function saveCategory(event){
+    event.preventDefault();
+    const data = {
+        category_id:Number(document.getElementById("cId").value),
+        category_name:document.getElementById("cName").value.trim()
+    };
+    try{
+        await api("/api/categories",{
+            method:"POST",
+            body:JSON.stringify(data)
+        });
+        closeModal("categoryModal");
+        showMessage("Category added successfully!");
+        await loadData();
+    }
+    catch(error){
+        showMessage(error.message,"error");
+    }
+}
+// SUPPLIERS
+function renderSuppliers(){
+    const search =
+    document.getElementById("supplierSearch").value.toLowerCase();
+    // Search by supplier name, phone or email
+    const list = suppliers.filter(s=>{
+        return [
+            s.supplier_name,
+            s.phone,
+            s.email
+        ].some(value=>
+            String(value || "").toLowerCase().includes(search)
+        );
+    });
+    document.getElementById("supplierTable").innerHTML =
+    list.length ? `
+    <table>
+    <tr>
+        <th>ID</th>
+        <th>Supplier Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Actions</th>
+    </tr>
+    ${list.map(s=>`
+    <tr>
+        <td>${s.supplier_id}</td>
+        <td>${esc(s.supplier_name)}</td>
+        <td>${esc(s.phone || "-")}</td>
+        <td>${esc(s.email || "-")}</td>
+        <td>
+            <button class="btn red small"
+            onclick="deleteSupplier(${s.supplier_id})">
+            Delete
+            </button>
+        </td>
+    </tr>
+    `).join("")}
+    </table>
+    ` : '<div class="empty">No suppliers found.</div>';
+}
+// ADD SUPPLIER
+function openSupplierForm(){
+    document.querySelector("#supplierModal form").reset();
+    openModal("supplierModal");
+}
+async function saveSupplier(event){
+    event.preventDefault();
+    const data = {
+        supplier_id:Number(document.getElementById("sId").value),
+        supplier_name:document.getElementById("sName").value.trim(),
+        phone:document.getElementById("sPhone").value.trim(),
+        email:document.getElementById("sEmail").value.trim()
+    };
+    try{
+        await api("/api/suppliers",{
+            method:"POST",
+            body:JSON.stringify(data)
+        });
+        closeModal("supplierModal");
+        showMessage("Supplier added successfully!");
+        await loadData();
+    }
+    catch(error){
+        showMessage(error.message,"error");
+    }
+}
+// DELETE SUPPLIER
+async function deleteSupplier(id){
+    const supplier = suppliers.find(s=>
+        Number(s.supplier_id)===Number(id)
+    );
+    if(!confirm(
+        `Are you sure you want to delete ${supplier.supplier_name}?`
+    )){
+        return;
+    }
+    try{
+        await api("/api/suppliers/"+id,{
+            method:"DELETE"
+        });
+        showMessage("Supplier deleted successfully!");
+        await loadData();
+    }
+    catch(error){
+        // This message appears when products are linked
+        showMessage(error.message,"error");
+    }
+}
+// STOCK
+function renderStock(){
+    document.getElementById("stockTable").innerHTML =
+    products.length ? `
+    <table>
+    <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Minimum Stock</th>
+        <th>Status</th>
+    </tr>
+    ${products.map(p=>{
+        const low =
+        Number(p.quantity)<=Number(p.minimum_stock);
+        return `
+        <tr>
+            <td>${esc(p.product_name)}</td>
+            <td>${p.quantity}</td>
+            <td>${p.minimum_stock}</td>
+            <td>
+                <span class="badge ${low?"low":""}">
+                ${low?"Low Stock":"Available"}
+                </span>
+            </td>
+        </tr>
+        `;
+    }).join("")}
+    </table>
+    ` : '<div class="empty">No products found.</div>';
+}
+async function changeStock(event){
+    event.preventDefault();
+    const data = {
+        product_id:Number(document.getElementById("stockProduct").value),
+        quantity:Number(document.getElementById("stockQuantity").value),
+        action:document.getElementById("stockAction").value
+    };
+    try{
+        const result = await api("/api/stock",{
+            method:"POST",
+            body:JSON.stringify(data)
+        });
+        showMessage(
+            result.message+" New quantity: "+result.new_quantity
+        );
+        document.getElementById("stockQuantity").value="";
+        await loadData();
+    }
+    catch(error){
+        showMessage(error.message,"error");
+    }
+}
+// LOW STOCK
+function renderLowStock(){
+    const list = products.filter(p=>
+        Number(p.quantity)<=Number(p.minimum_stock)
+    );
+    document.getElementById("lowStockTable").innerHTML =
+    list.length ? `
+    <table>
+    <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Minimum Stock</th>
+        <th>Supplier</th>
+    </tr>
+    ${list.map(p=>`
+    <tr>
+        <td>${esc(p.product_name)}</td>
+        <td>${p.quantity}</td>
+        <td>${p.minimum_stock}</td>
+        <td>${esc(p.supplier_name || "-")}</td>
+    </tr>
+    `).join("")}
+    </table>
+    ` : '<div class="empty">No low stock products.</div>';
+}
+// DROPDOWNS
+function fillSelects(){
+    const catOptions = categories.map(c=>`
+        <option value="${c.category_id}">
+        ${esc(c.category_name)}
+        </option>
+    `).join("");
+    const supOptions = suppliers.map(s=>`
+        <option value="${s.supplier_id}">
+        ${esc(s.supplier_name)}
+        </option>
+    `).join("");
+    document.getElementById("pCategory").innerHTML =
+    '<option value="">Select Category</option>'+catOptions;
+    document.getElementById("pSupplier").innerHTML =
+    '<option value="">Select Supplier</option>'+supOptions;
+    document.getElementById("productFilter").innerHTML =
+    '<option value="">All Categories</option>'+catOptions;
+    document.getElementById("categorySelect").innerHTML =
+    '<option value="">Select Category</option>'+catOptions;
+    document.getElementById("stockProduct").innerHTML =
+    products.map(p=>`
+        <option value="${p.product_id}">
+        ${esc(p.product_name)} (Stock: ${p.quantity})
+        </option>
+    `).join("");
+}
+// HTML ESCAPE
+function esc(value){
+    return String(value ?? "").replace(/[&<>"']/g,char=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[char]);
+}
+// START
+loadData();
+</script>
+</body>
+</html>
